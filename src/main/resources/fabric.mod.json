@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "unqualified_chemistry",
+	"version": "${version}",
+	"name": "Unqualified_Chemistry",
+	"description": "This is a mod about approximating chemistry in Minecraft (Inspired by GregTech and the like)",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/unqualified_chemistry/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"unqualified.chemistry.Unqualified_Chemistry"
+		],
+		"fabric-datagen": [
+			"unqualified.chemistry.Unqualified_ChemistryDataGenerator"
+		],
+		"client": [
+			"unqualified.chemistry.Unqualified_ChemistryClient"
+		]
+	},
+	"mixins": [
+		"unqualified_chemistry.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
