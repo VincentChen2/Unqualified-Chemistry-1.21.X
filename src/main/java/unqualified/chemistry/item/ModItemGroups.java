@@ -17,7 +17,8 @@ public class ModItemGroups {
                     icon(() -> new ItemStack(ModItems.GRAPHITE_DUST)).
                     displayName(Text.translatable("itemgroup.unqualified_chemistry.unqualified_chemistry_items")).
                     entries((displayContext, entries) -> {
-                        entries.add(ModItems.GRAPHITE_DUST);}).
+                        entries.add(ModItems.GRAPHITE_DUST);
+                        entries.add(ModItems.PENCIL);}).
                     build());
 
     public static final ItemGroup UNQUALIFIED_CHEMISTRY_BLOCKS_GROUP = Registry.register(Registries.ITEM_GROUP,

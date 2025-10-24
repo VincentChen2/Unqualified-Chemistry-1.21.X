@@ -13,6 +13,8 @@ import unqualified.chemistry.Unqualified_Chemistry;
 public class ModItems {
     public static final Item GRAPHITE_DUST = registerItem("graphite_dust",
             new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Unqualified_Chemistry.MOD_ID,"graphite_dust")))));
+    public static final Item PENCIL = registerItem("pencil",
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Unqualified_Chemistry.MOD_ID, "pencil")))));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(Unqualified_Chemistry.MOD_ID, name), item);
@@ -23,6 +25,7 @@ public class ModItems {
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
             entries.add(GRAPHITE_DUST);
+            entries.add(PENCIL);
         });
     }
 }
