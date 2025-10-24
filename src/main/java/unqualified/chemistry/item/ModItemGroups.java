@@ -18,7 +18,8 @@ public class ModItemGroups {
                     displayName(Text.translatable("itemgroup.unqualified_chemistry.unqualified_chemistry_items")).
                     entries((displayContext, entries) -> {
                         entries.add(ModItems.GRAPHITE_DUST);
-                        entries.add(ModItems.PENCIL);}).
+                        entries.add(ModItems.PENCIL);
+                        entries.add(ModItems.BOOK_AND_PENCIL);}).
                     build());
 
     public static final ItemGroup UNQUALIFIED_CHEMISTRY_BLOCKS_GROUP = Registry.register(Registries.ITEM_GROUP,

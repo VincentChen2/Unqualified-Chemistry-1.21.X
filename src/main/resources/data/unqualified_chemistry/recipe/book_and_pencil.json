@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "tools",
+  "ingredients": [
+    "unqualified_chemistry:pencil",
+    "minecraft:book"
+  ],
+  "result": {
+    "count": 1,
+    "id": "unqualified_chemistry:book_and_pencil"
+  }
+}
