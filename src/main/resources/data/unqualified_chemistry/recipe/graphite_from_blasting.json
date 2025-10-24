@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 600,
+  "experience": 1.0,
+  "ingredient": [
+    "minecraft:coal_block"
+  ],
+  "result": {
+    "id": "unqualified_chemistry:graphite_block"
+  }
+}

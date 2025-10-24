@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "unqualified_chemistry:graphite_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "unqualified_chemistry:graphite_dust"
+  }
+}

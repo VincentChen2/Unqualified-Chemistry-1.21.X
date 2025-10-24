@@ -4,6 +4,8 @@ import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import unqualified.chemistry.block.ModBlocks;
+import unqualified.chemistry.item.ModItemGroups;
 import unqualified.chemistry.item.ModItems;
 
 public class Unqualified_Chemistry implements ModInitializer {
@@ -12,6 +14,8 @@ public class Unqualified_Chemistry implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
+		ModBlocks.registerModBlocks();
 	}
 }

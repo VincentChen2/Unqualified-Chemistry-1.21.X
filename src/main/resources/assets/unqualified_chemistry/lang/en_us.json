@@ -1,3 +1,9 @@
 {
-  "item.unqualified_chemistry.carbon_dust": "Carbon Dust"
+  "item.unqualified_chemistry.graphite_dust": "Graphite Dust",
+  "item.unqualified_chemistry.graphite_block": "Graphite Block",
+
+  "block.unqualified_chemistry.graphite_block": "Graphite Block",
+
+  "itemgroup.unqualified_chemistry.unqualified_chemistry_items": "Unqualified Chemistry Items",
+  "itemgroup.unqualified_chemistry.unqualified_chemistry_blocks": "Unqualified Chemistry Blocks"
 }

@@ -11,17 +11,18 @@ import net.minecraft.util.Identifier;
 import unqualified.chemistry.Unqualified_Chemistry;
 
 public class ModItems {
-    public static final Item CARBON_DUST = registerItem("carbon_dust", new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Unqualified_Chemistry.MOD_ID,"carbon_dust")))));
+    public static final Item GRAPHITE_DUST = registerItem("graphite_dust",
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Unqualified_Chemistry.MOD_ID,"graphite_dust")))));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(Unqualified_Chemistry.MOD_ID, name), item);
     }
 
     public static void registerModItems() {
-        Unqualified_Chemistry.LOGGER.info("Registering Mod Items" + Unqualified_Chemistry.MOD_ID);
+        Unqualified_Chemistry.LOGGER.info("Registering Mod Items for " + Unqualified_Chemistry.MOD_ID);
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
-            entries.add(CARBON_DUST);
+            entries.add(GRAPHITE_DUST);
         });
     }
 }
