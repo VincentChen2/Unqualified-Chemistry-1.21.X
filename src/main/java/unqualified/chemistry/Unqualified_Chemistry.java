@@ -16,6 +16,7 @@ public class Unqualified_Chemistry implements ModInitializer {
 	public void onInitialize() {
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
+		ModItems.registerTooltips();
 		ModBlocks.registerModBlocks();
 	}
 }
