@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "g": "unqualified_chemistry:graphite_dust",
     "c": "minecraft:clay",
+    "g": "unqualified_chemistry:graphite_dust",
     "s": "minecraft:stick"
   },
   "pattern": [

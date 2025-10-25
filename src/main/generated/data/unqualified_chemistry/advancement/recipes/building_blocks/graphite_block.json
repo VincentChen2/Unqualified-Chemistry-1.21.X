@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_graphite_dust": {
+      "conditions": {
+        "items": [
+          {
+            "items": "unqualified_chemistry:graphite_dust"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "unqualified_chemistry:graphite_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_graphite_dust"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "unqualified_chemistry:graphite_block"
+    ]
+  }
+}
