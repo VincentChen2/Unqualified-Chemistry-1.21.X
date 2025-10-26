@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass"
+  },
+  "pattern": [
+    "G G",
+    "G G",
+    "GGG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "unqualified_chemistry:beaker_block"
+  }
+}

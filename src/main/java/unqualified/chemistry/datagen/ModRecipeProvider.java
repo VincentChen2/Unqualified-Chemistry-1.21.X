@@ -7,7 +7,6 @@ import net.minecraft.data.recipe.RecipeGenerator;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
-
 import unqualified.chemistry.block.ModBlocks;
 import unqualified.chemistry.item.ModItems;
 
@@ -54,6 +53,14 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                         .input(ModItems.PENCIL)
                         .input(Items.BOOK)
                         .criterion(hasItem(ModItems.PENCIL), conditionsFromItem(ModItems.PENCIL))
+                        .offerTo(recipeExporter);
+
+                createShaped(RecipeCategory.DECORATIONS, ModBlocks.BEAKER_BLOCK)
+                        .pattern("G G")
+                        .pattern("G G")
+                        .pattern("GGG")
+                        .input('G', Items.GLASS)
+                        .criterion(hasItem(Items.GLASS), conditionsFromItem(Items.GLASS))
                         .offerTo(recipeExporter);
             }
         };

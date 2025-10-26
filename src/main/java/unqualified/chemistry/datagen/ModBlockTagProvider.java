@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
 
-
     public ModBlockTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
         super(output, registriesFuture);
     }
@@ -22,5 +21,11 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
 
         valueLookupBuilder(BlockTags.PICKAXE_MINEABLE)
                 .add(ModBlocks.GRAPHITE_BLOCK);
+
+        valueLookupBuilder(BlockTags.NEEDS_STONE_TOOL)
+                .add(ModBlocks.BEAKER_BLOCK);
+
+        valueLookupBuilder(BlockTags.PICKAXE_MINEABLE)
+                .add(ModBlocks.BEAKER_BLOCK);
     }
 }

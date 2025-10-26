@@ -28,7 +28,8 @@ public class ModItemGroups {
                     icon(() -> new ItemStack(ModBlocks.GRAPHITE_BLOCK)).
                     displayName(Text.translatable("itemgroup.unqualified_chemistry.unqualified_chemistry_blocks")).
                     entries((displayContext, entries) -> {
-                        entries.add(ModBlocks.GRAPHITE_BLOCK);}).
+                        entries.add(ModBlocks.GRAPHITE_BLOCK);
+                        entries.add(ModBlocks.BEAKER_BLOCK);}).
                     build());
 
     public static void registerItemGroups() {

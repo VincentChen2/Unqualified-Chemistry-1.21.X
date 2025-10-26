@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import unqualified.chemistry.block.ModBlocks;
 import unqualified.chemistry.item.ModItemGroups;
 import unqualified.chemistry.item.ModItems;
+import unqualified.chemistry.screen.ModScreenHandlers;
 
 public class Unqualified_Chemistry implements ModInitializer {
 	public static final String MOD_ID = "unqualified_chemistry";
@@ -18,5 +19,6 @@ public class Unqualified_Chemistry implements ModInitializer {
 		ModItems.registerModItems();
 		ModItems.registerTooltips();
 		ModBlocks.registerModBlocks();
+		ModScreenHandlers.registerScreenHandlers();
 	}
 }

@@ -1,5 +1,6 @@
 {
   "values": [
-    "unqualified_chemistry:graphite_block"
+    "unqualified_chemistry:graphite_block",
+    "unqualified_chemistry:beaker_block"
   ]
 }
