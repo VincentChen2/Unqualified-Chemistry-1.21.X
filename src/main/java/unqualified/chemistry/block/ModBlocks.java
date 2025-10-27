@@ -50,13 +50,5 @@ public class ModBlocks {
 
     public static void registerModBlocks() {
         Unqualified_Chemistry.LOGGER.info("Registering Mod Blocks for " + Unqualified_Chemistry.MOD_ID);
-
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
-            entries.add(ModBlocks.GRAPHITE_BLOCK);
-        });
-
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
-            entries.add(ModBlocks.BEAKER_BLOCK);
-        });
     }
 }

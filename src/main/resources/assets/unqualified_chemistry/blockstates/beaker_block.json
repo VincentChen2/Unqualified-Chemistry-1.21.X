@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "unqualified_chemistry:block/beaker_block"
+    }
+  }
+}
