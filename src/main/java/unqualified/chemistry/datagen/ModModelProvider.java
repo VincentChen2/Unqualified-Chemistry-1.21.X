@@ -23,6 +23,5 @@ public class ModModelProvider extends FabricModelProvider {
         itemModelGenerator.register(ModItems.GRAPHITE_DUST, Models.GENERATED);
         itemModelGenerator.register(ModItems.BOOK_AND_PENCIL, Models.GENERATED);
         itemModelGenerator.register(ModItems.PENCIL, Models.GENERATED);
-        itemModelGenerator.register(ModBlocks.BEAKER_BLOCK.asItem(), Models.GENERATED);
     }
 }

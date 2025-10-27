@@ -60,7 +60,7 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     public float getFluidHeight() {
-        return (float) currentVolume / MAX_CAPACITY * 0.5f; // Scale to 0-0.5 block height
+        return (float) currentVolume / MAX_CAPACITY * 0.1875f; // Scale to 0-3/16 block height
     }
 
     public boolean addFluid(ItemStack container) {
