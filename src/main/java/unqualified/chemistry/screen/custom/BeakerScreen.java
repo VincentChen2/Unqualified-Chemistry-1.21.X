@@ -28,11 +28,11 @@ public class BeakerScreen extends HandledScreen<BeakerScreenHandler> {
         // Draw fluid information
         if (handler.getBlockEntity() != null) {
             BeakerBlockEntity beaker = handler.getBlockEntity();
-            String volumeText = beaker.getCurrentVolume() + " / " + beaker.getMaxCapacity() + " ml";
+            String volumeText = "Volume: " + beaker.getCurrentVolume() + " / " + beaker.getMaxCapacity() + " ml";
             String fluidText = "Fluid: " + beaker.getFluidType().toString();
 
-            context.drawText(textRenderer, Text.literal(volumeText), x + 8, y + 20, 0x404040, false);
-            context.drawText(textRenderer, Text.literal(fluidText), x + 8, y + 35, 0x404040, false);
+            context.drawText(this.textRenderer, volumeText, 137, 75, 0xFFFFFFFF, true);
+            context.drawText(this.textRenderer, fluidText, 137, 90, 0xFFFFFFFF, true);
         }
     }
 
