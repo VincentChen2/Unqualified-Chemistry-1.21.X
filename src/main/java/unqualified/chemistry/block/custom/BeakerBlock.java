@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import unqualified.chemistry.block.entity.custom.BeakerBlockEntity;
 
 public class BeakerBlock extends BlockWithEntity implements BlockEntityProvider {
-    private static final VoxelShape SHAPE = Block.createCuboidShape(5.5, 0, 5.5, 10.5, 9, 10.5);
+    private static final VoxelShape SHAPE = Block.createCuboidShape(7, 0, 7, 9, 3, 9);
 
     public static final MapCodec<BeakerBlock> CODEC = createCodec(BeakerBlock::new);
 
