@@ -31,8 +31,8 @@ public class BeakerScreen extends HandledScreen<BeakerScreenHandler> {
             String volumeText = "Volume: " + beaker.getCurrentVolume() + " / " + beaker.getMaxCapacity() + " ml";
             String fluidText = "Fluid: " + beaker.getFluidType().toString();
 
-            context.drawText(this.textRenderer, volumeText, 137, 75, 0xFFFFFFFF, true);
-            context.drawText(this.textRenderer, fluidText, 137, 90, 0xFFFFFFFF, true);
+            context.drawText(this.textRenderer, volumeText, x + 8, y + 25, 0xFFFFFFFF, true);
+            context.drawText(this.textRenderer, fluidText, x + 8, y + 40, 0xFFFFFFFF, true);
         }
     }
 
