@@ -33,6 +33,6 @@ public class ModItemGroups {
                     build());
 
     public static void registerItemGroups() {
-        Unqualified_Chemistry.LOGGER.info("Registering Mod Item Groups for" + Unqualified_Chemistry.MOD_ID);
+        Unqualified_Chemistry.LOGGER.info("Registering Mod Item Groups for " + Unqualified_Chemistry.MOD_ID);
     }
 }
