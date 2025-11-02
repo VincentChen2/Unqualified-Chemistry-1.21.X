@@ -1,154 +1,91 @@
 package unqualified.chemistry.block.entity.custom;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.Potions;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import unqualified.chemistry.block.entity.ModBlockEntities;
 import unqualified.chemistry.screen.custom.BeakerScreenHandler;
+import unqualified.chemistry.util.FluidUtils;
 
-public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos> {
-    private static final int MAX_CAPACITY = 1000; // 1000ml
-    private int currentVolume = 0;
-    private FluidType fluidType = FluidType.EMPTY;
-    private int fluidColor = 0xFFFFFF;
+public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, ImplementedInventory {
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
+
+    public final SingleVariantStorage<FluidVariant> fluidStorage = new SingleVariantStorage<>() {
+        @Override
+        protected FluidVariant getBlankVariant() {
+            return FluidVariant.blank();
+        }
+
+        //TODO: Implement a smaller FluidConstant with less capacity to better reflect actual capacity of beaker (make 1 droplet = 1ml)
+        @Override
+        protected long getCapacity(FluidVariant variant) {
+            return (FluidConstants.BOTTLE) * 2; // 1 Bottle = 27000 Droplets = 500ml
+        }
+
+        @Override
+        protected void onFinalCommit() {
+            markDirty();
+            assert getWorld() != null;
+            getWorld().updateListeners(pos, getCachedState(), getCachedState(), 3);
+        }
+    };
 
     public BeakerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.BEAKER_BE, pos, state);
     }
 
-    public enum FluidType {
-        EMPTY, WATER, POTION
-    }
-
-    public int getCurrentVolume() {
-        return currentVolume;
-    }
-
-    public int getMaxCapacity() {
-        return MAX_CAPACITY;
-    }
-
-    public FluidType getFluidType() {
-        return fluidType;
+    public FluidVariant getFluid(){
+        return fluidStorage.variant;
     }
 
     public int getFluidColor() {
-        return fluidColor;
+        return FluidVariantRendering.getColor(this.fluidStorage.variant);
     }
 
     public float getFluidHeight() {
-        return (float) currentVolume / MAX_CAPACITY * 0.1875f; // Scale to 0-3/16 block height
-    }
-
-    public boolean addFluid(ItemStack container) {
-        if (currentVolume >= MAX_CAPACITY) return false;
-
-        int addAmount = 250; // Standard bottle amount
-
-        if (isWaterBottle(container)) {
-            if (fluidType != FluidType.EMPTY && fluidType != FluidType.WATER) return false;
-
-            fluidType = FluidType.WATER;
-            fluidColor = 0x3F76E4; // Water blue
-        } else if (container.isOf(Items.POTION)) {
-            if (fluidType != FluidType.EMPTY && fluidType != FluidType.POTION) return false;
-
-            fluidType = FluidType.POTION;
-            PotionContentsComponent potionContents = container.get(DataComponentTypes.POTION_CONTENTS);
-            if (potionContents != null) {
-                fluidColor = potionContents.getColor();
-            } else {
-                fluidColor = 0xFF55FF; // Default potion color
-            }
-        } else {
-            return false;
-        }
-
-        currentVolume = Math.min(currentVolume + addAmount, MAX_CAPACITY);
-        markDirty();
-        return true;
-    }
-
-    public ItemStack removeFluid() {
-        if (currentVolume <= 0) return ItemStack.EMPTY;
-
-        int removeAmount = 250;
-        if (currentVolume < removeAmount) return ItemStack.EMPTY;
-
-        ItemStack result = ItemStack.EMPTY;
-
-        if (fluidType == FluidType.WATER) {
-            result = new ItemStack(Items.POTION);
-            result.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
-        } else if (fluidType == FluidType.POTION) {
-            result = new ItemStack(Items.POTION);
-            PotionContentsComponent potionContents = new PotionContentsComponent(
-                    Registries.POTION.getEntry((Potion) Potions.WATER)
-            );
-            result.set(DataComponentTypes.POTION_CONTENTS, potionContents);
-        }
-
-        currentVolume -= removeAmount;
-        if (currentVolume <= 0) {
-            fluidType = FluidType.EMPTY;
-            fluidColor = 0xFFFFFF;
-        }
-
-        markDirty();
-        return result;
-    }
-
-    private boolean isWaterBottle(ItemStack stack) {
-        if (!stack.isOf(Items.POTION)) {
-            return false;
-        }
-
-        PotionContentsComponent potionContents = stack.get(DataComponentTypes.POTION_CONTENTS);
-        return potionContents != null && potionContents.equals(PotionContentsComponent.DEFAULT);
-    }
-
-    @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
-        view.putInt("Volume", currentVolume);
-        view.putString("FluidType", fluidType.name());
-        view.putInt("FluidColor", fluidColor);
-    }
-
-    @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
-        currentVolume = view.getInt("Volume", 0);
-        fluidType = FluidType.valueOf(view.getString("FluidType", "EMPTY"));
-        fluidColor = view.getInt("FluidColor", 0xFFFFFF);
+        return (((float) fluidStorage.getAmount() / fluidStorage.getCapacity()) * 0.625f) + 0.01f;
     }
 
     @Override
     public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
         return this.pos;
+    }
+
+    @Override
+    public DefaultedList<ItemStack> getItems() {
+        return inventory;
     }
 
     @Override
@@ -160,6 +97,74 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         return new BeakerScreenHandler(syncId, playerInventory, this.pos);
+    }
+
+    private boolean hasFluidStackInFirstSlot() {
+        return !inventory.getFirst().isEmpty() && FluidUtils.isContainer(inventory.getFirst())
+                && !FluidUtils.isContainerEmpty(inventory.getFirst());
+    }
+
+    private boolean hasFluidHandlerInSecondSlot() {
+        return !inventory.get(1).isEmpty() && FluidUtils.isContainer(inventory.get(1))
+                && (FluidUtils.isContainerEmpty(inventory.get(1)) || FluidUtils.doesContainerStillHaveSpace(inventory.get(1))) && !fluidStorage.isResourceBlank();
+    }
+
+
+    private void transferFluidToBeaker() {
+        if (inventory.getFirst().isOf(Items.POTION)) {
+            PotionContentsComponent potionContents = inventory.getFirst().get(DataComponentTypes.POTION_CONTENTS);
+
+            if (potionContents != null && potionContents.potion().isPresent()) {
+                RegistryEntry<Potion> potionType = potionContents.potion().get();
+
+                if (potionType.matches(Potions.WATER) && (fluidStorage.variant.isOf(Fluids.WATER) || fluidStorage.isResourceBlank())) {
+                    try (Transaction transaction = Transaction.openOuter()) {
+                        this.fluidStorage.insert(FluidVariant.of(Fluids.WATER), 500, transaction);
+                        inventory.set(0, new ItemStack(Items.GLASS_BOTTLE));
+                        transaction.commit();
+                    }
+                }
+            }
+        }
+    }
+
+    private void transferFluidFromBeaker() {
+        if(inventory.get(1).isOf(Items.BUCKET)) {
+            try(Transaction transaction = Transaction.openOuter()) {
+                FluidVariant variant = fluidStorage.variant;
+                this.fluidStorage.extract(fluidStorage.variant, 500, transaction);
+                if(variant.isOf(Fluids.WATER)) {
+                    ItemStack waterBottle = new ItemStack(Items.POTION);
+                    waterBottle.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+                    inventory.set(1, waterBottle);
+                }
+                transaction.commit();
+            }
+        }
+    }
+
+    public void tick(World world, BlockPos pos, BlockState state) {
+        if (hasFluidStackInFirstSlot()) {
+            transferFluidToBeaker();
+        }
+
+        if(hasFluidHandlerInSecondSlot()) {
+            transferFluidFromBeaker();
+        }
+    }
+
+    @Override
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+        Inventories.writeData(view, inventory);
+        SingleVariantStorage.writeData(this.fluidStorage, FluidVariant.CODEC, view);
+    }
+
+    @Override
+    protected void readData(ReadView view) {
+        super.readData(view);
+        Inventories.readData(view, inventory);
+        SingleVariantStorage.readData(this.fluidStorage, FluidVariant.CODEC, FluidVariant::blank, view);
     }
 
     @Nullable

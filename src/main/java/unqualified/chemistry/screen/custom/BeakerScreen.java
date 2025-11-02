@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import unqualified.chemistry.Unqualified_Chemistry;
-import unqualified.chemistry.block.entity.custom.BeakerBlockEntity;
+import unqualified.chemistry.screen.custom.widgets.FluidWidget;
 
 public class BeakerScreen extends HandledScreen<BeakerScreenHandler> {
     private static final Identifier TEXTURE = Identifier.of(Unqualified_Chemistry.MOD_ID, "textures/gui/beaker.png");
@@ -24,16 +24,6 @@ public class BeakerScreen extends HandledScreen<BeakerScreenHandler> {
         int y = (height - backgroundHeight) / 2;
 
         context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight, 256, 256);
-
-        // Draw fluid information
-        if (handler.getBlockEntity() != null) {
-            BeakerBlockEntity beaker = handler.getBlockEntity();
-            String volumeText = "Volume: " + beaker.getCurrentVolume() + " / " + beaker.getMaxCapacity() + " ml";
-            String fluidText = "Fluid: " + beaker.getFluidType().toString();
-
-            context.drawText(this.textRenderer, volumeText, x + 8, y + 25, 0xFFFFFFFF, true);
-            context.drawText(this.textRenderer, fluidText, x + 8, y + 40, 0xFFFFFFFF, true);
-        }
     }
 
     @Override
@@ -46,6 +36,11 @@ public class BeakerScreen extends HandledScreen<BeakerScreenHandler> {
     @Override
     protected void init() {
         super.init();
-        titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
+
+        addDrawable(FluidWidget.builder(this.handler.getBlockEntity().fluidStorage)
+                .bounds(this.x + 80, this.y + 8, 15, 63 )
+                .posSupplier(() -> this.handler.getBlockEntity().getPos())
+                .build()
+        );
     }
 }

@@ -5,18 +5,16 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -48,73 +46,26 @@ public class BeakerBlock extends BlockWithEntity implements BlockEntityProvider 
     }
 
     @Override
-    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos,
-                                         PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof BeakerBlockEntity beakerBlockEntity) {
-            // Handle empty hand - open screen
-            if (stack.isEmpty() && !player.isSneaking()) {
-                if (!world.isClient()) {
-                    player.openHandledScreen(beakerBlockEntity);
-                }
-                return ActionResult.SUCCESS;
-            }
-
-            // Handle fluid container interactions
-            if (isWaterBottle(stack) || stack.isOf(Items.POTION)) {
-                if (!world.isClient()) {
-                    boolean success = beakerBlockEntity.addFluid(stack);
-                    if (success) {
-                        world.playSound(null, pos, SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.BLOCKS, 1.0f, 1.0f);
-
-                        // Replace with empty bottle
-                        if (!player.isCreative()) {
-                            stack.decrement(1);
-                            if (stack.isEmpty()) {
-                                player.setStackInHand(hand, new ItemStack(Items.GLASS_BOTTLE));
-                            } else {
-                                player.getInventory().insertStack(new ItemStack(Items.GLASS_BOTTLE));
-                            }
-                        }
-                    }
-                    beakerBlockEntity.markDirty();
-                    world.updateListeners(pos, state, state, 0);
-                }
-                return ActionResult.SUCCESS;
-            }
-
-            // Handle glass bottle to remove fluid
-            if (stack.isOf(Items.GLASS_BOTTLE)) {
-                if (!world.isClient()) {
-                    ItemStack filledBottle = beakerBlockEntity.removeFluid();
-                    if (!filledBottle.isEmpty()) {
-                        world.playSound(null, pos, SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.BLOCKS, 1.0f, 1.0f);
-
-                        if (!player.isCreative()) {
-                            stack.decrement(1);
-                            if (stack.isEmpty()) {
-                                player.setStackInHand(hand, filledBottle);
-                            } else {
-                                player.getInventory().insertStack(filledBottle);
-                            }
-                        }
-                    }
-                    beakerBlockEntity.markDirty();
-                    world.updateListeners(pos, state, state, 0);
-                }
-                return ActionResult.SUCCESS;
+    protected void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
+        BlockState newState = world.getBlockState(pos);
+        if (!state.isOf(newState.getBlock())) {
+            if (world.getBlockEntity(pos) instanceof BeakerBlockEntity beakerBlockEntity) {
+                ItemScatterer.spawn(world, pos, beakerBlockEntity);
+                world.updateComparators(pos, this);
             }
         }
-
-        return ActionResult.PASS;
+        super.onStateReplaced(state, world, pos, moved);
     }
+    @Override
+    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (!world.isClient()) {
+            NamedScreenHandlerFactory screenHandlerFactory = ((BeakerBlockEntity) world.getBlockEntity(pos));
 
-    // Helper method to detect water bottles
-    private boolean isWaterBottle(ItemStack stack) {
-        if (!stack.isOf(Items.POTION)) {
-            return false;
+            if (screenHandlerFactory != null) {
+                player.openHandledScreen(screenHandlerFactory);
+            }
         }
 
-        return stack.getComponents().contains(DataComponentTypes.POTION_CONTENTS) &&
-                PotionContentsComponent.DEFAULT.equals(stack.get(DataComponentTypes.POTION_CONTENTS));
+        return ActionResult.SUCCESS;
     }
 }

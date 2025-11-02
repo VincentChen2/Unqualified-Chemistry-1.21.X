@@ -3,7 +3,6 @@ package unqualified.chemistry.screen.custom;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
@@ -14,7 +13,6 @@ import unqualified.chemistry.screen.ModScreenHandlers;
 
 public class BeakerScreenHandler extends ScreenHandler {
     private final BeakerBlockEntity blockEntity;
-    private final Inventory inventory;
 
     public BeakerScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
         this(syncId, playerInventory, playerInventory.player.getEntityWorld().getBlockEntity(pos));
@@ -23,14 +21,17 @@ public class BeakerScreenHandler extends ScreenHandler {
     public BeakerScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity) {
         super(ModScreenHandlers.BEAKER_SCREEN_HANDLER, syncId);
 
+        SimpleInventory inventory;
         if (blockEntity instanceof BeakerBlockEntity beaker) {
             this.blockEntity = beaker;
-            this.inventory = new SimpleInventory(0); // No item slots for beaker
+            inventory = new SimpleInventory(2);
         } else {
             this.blockEntity = null;
-            this.inventory = new SimpleInventory(0);
+            inventory = new SimpleInventory(2);
         }
 
+        this.addSlot(new Slot(inventory, 0, 44, 34));
+        this.addSlot(new Slot(inventory, 1, 116, 34));
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }

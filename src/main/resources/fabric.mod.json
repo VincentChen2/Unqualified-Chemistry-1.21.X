@@ -1,4 +1,4 @@
-{
+ {
 	"schemaVersion": 1,
 	"id": "unqualified_chemistry",
 	"version": "${version}",
@@ -25,6 +25,7 @@
 			"unqualified.chemistry.Unqualified_ChemistryClient"
 		]
 	},
+    "accessWidener" : "unqualified_chemistry.accesswidener",
 	"mixins": [
 		"unqualified_chemistry.mixins.json"
 	],
