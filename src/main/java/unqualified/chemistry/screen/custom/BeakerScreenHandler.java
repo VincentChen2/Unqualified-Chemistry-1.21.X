@@ -13,6 +13,7 @@ import unqualified.chemistry.screen.ModScreenHandlers;
 
 public class BeakerScreenHandler extends ScreenHandler {
     private final BeakerBlockEntity blockEntity;
+    SimpleInventory inventory;
 
     public BeakerScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
         this(syncId, playerInventory, playerInventory.player.getEntityWorld().getBlockEntity(pos));
@@ -21,7 +22,6 @@ public class BeakerScreenHandler extends ScreenHandler {
     public BeakerScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity) {
         super(ModScreenHandlers.BEAKER_SCREEN_HANDLER, syncId);
 
-        SimpleInventory inventory;
         if (blockEntity instanceof BeakerBlockEntity beaker) {
             this.blockEntity = beaker;
             inventory = new SimpleInventory(2);
@@ -42,8 +42,26 @@ public class BeakerScreenHandler extends ScreenHandler {
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
-        // Since the beaker has no inventory slots, quick move doesn't need to do anything
-        return ItemStack.EMPTY;
+        ItemStack newStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(invSlot);
+        if (slot.hasStack()) {
+            ItemStack originalStack = slot.getStack();
+            newStack = originalStack.copy();
+            if (invSlot < this.inventory.size()) {
+                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (originalStack.isEmpty()) {
+                slot.setStack(ItemStack.EMPTY);
+            } else {
+                slot.markDirty();
+            }
+        }
+        return newStack;
     }
 
     @Override
