@@ -3,6 +3,8 @@ package unqualified.chemistry.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -18,6 +20,7 @@ import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
 
+import unqualified.chemistry.block.entity.ModBlockEntities;
 import unqualified.chemistry.block.entity.custom.BeakerBlockEntity;
 
 public class BeakerBlock extends BlockWithEntity implements BlockEntityProvider {
@@ -67,5 +70,11 @@ public class BeakerBlock extends BlockWithEntity implements BlockEntityProvider 
         }
 
         return ActionResult.SUCCESS;
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return validateTicker(type, ModBlockEntities.BEAKER_BE, (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1));
     }
 }
