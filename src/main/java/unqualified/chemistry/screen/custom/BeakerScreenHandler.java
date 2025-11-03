@@ -3,7 +3,6 @@ package unqualified.chemistry.screen.custom;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -13,7 +12,6 @@ import unqualified.chemistry.screen.ModScreenHandlers;
 
 public class BeakerScreenHandler extends ScreenHandler {
     private final BeakerBlockEntity blockEntity;
-    SimpleInventory inventory;
 
     public BeakerScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
         this(syncId, playerInventory, playerInventory.player.getEntityWorld().getBlockEntity(pos));
@@ -24,14 +22,12 @@ public class BeakerScreenHandler extends ScreenHandler {
 
         if (blockEntity instanceof BeakerBlockEntity beaker) {
             this.blockEntity = beaker;
-            inventory = new SimpleInventory(2);
         } else {
             this.blockEntity = null;
-            inventory = new SimpleInventory(2);
         }
 
-        this.addSlot(new Slot(inventory, 0, 44, 34));
-        this.addSlot(new Slot(inventory, 1, 116, 34));
+        this.addSlot(new Slot(this.blockEntity, 0, 44, 34));
+        this.addSlot(new Slot(this.blockEntity, 1, 116, 34));
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }
@@ -44,14 +40,17 @@ public class BeakerScreenHandler extends ScreenHandler {
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
+
         if (slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
-            if (invSlot < this.inventory.size()) {
-                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
+            int inventorySize = (blockEntity != null) ? blockEntity.size() : 0;
+
+            if (invSlot < inventorySize) {
+                if (!this.insertItem(originalStack, inventorySize, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
+            } else if (!this.insertItem(originalStack, 0, inventorySize, false)) {
                 return ItemStack.EMPTY;
             }
 

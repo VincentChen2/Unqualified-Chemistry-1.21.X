@@ -41,15 +41,17 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         builder.vertex(matricesEntry, x, y, z)
                 .color(color)
                 .texture(u, v)
+                .overlay(0)
                 .light(packedLight)
-                .normal(1, 0, 0);
+                .normal(matricesEntry, 0, 1, 0);
     }
 
     private static void drawQuad(VertexConsumer builder, MatrixStack.Entry matricesEntry, float x0, float y0, float z0, float x1, float y1, float z1, float u0, float v0, float u1, float v1, int packedLight, int color) {
+        //TODO: Fix Culling Issues
         drawVertex(builder, matricesEntry, x0, y0, z0, u0, v0, packedLight, color);
-        drawVertex(builder, matricesEntry, x0, y1, z1, u0, v1, packedLight, color);
+        drawVertex(builder, matricesEntry, x0, y1, z0, u0, v1, packedLight, color);
         drawVertex(builder, matricesEntry, x1, y1, z1, u1, v1, packedLight, color);
-        drawVertex(builder, matricesEntry, x1, y0, z0, u1, v0, packedLight, color);
+        drawVertex(builder, matricesEntry, x1, y0, z1, u1, v0, packedLight, color);
     }
 
     @Override
@@ -70,6 +72,8 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         if (state.blockEntityWorld == null) return;
 
         final Sprite sprite = FluidVariantRendering.getSprite(state.fluidStack);
+        if (sprite == null) return;
+
         FluidState fluidState = state.fluidStack.getFluid().getDefaultState();
         final int light = getLightLevel(state.blockEntityWorld, state.lightPosition);
         final int color = state.fluidColor;
@@ -85,7 +89,6 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         // Create custom renderer for the fluid
         OrderedRenderCommandQueue.Custom customRenderer = (matricesEntry, vertexConsumer) -> {
             // Top face
-            assert sprite != null;
             drawQuad(vertexConsumer, matricesEntry,
                     innerX0, innerY1, innerZ0,
                     innerX1, innerY1, innerZ1,

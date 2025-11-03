@@ -117,12 +117,22 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
             if (potionContents != null && potionContents.potion().isPresent()) {
                 RegistryEntry<Potion> potionType = potionContents.potion().get();
 
-                if (potionType.matches(Potions.WATER) && (fluidStorage.variant.isOf(Fluids.WATER) || fluidStorage.isResourceBlank())) {
-                    try (Transaction transaction = Transaction.openOuter()) {
-                        this.fluidStorage.insert(FluidVariant.of(Fluids.WATER), 500, transaction);
-                        inventory.set(0, new ItemStack(Items.GLASS_BOTTLE));
-                        transaction.commit();
+                if (potionType.matches(Potions.WATER)) {
+                    if (fluidStorage.variant.isOf(Fluids.WATER) || fluidStorage.isResourceBlank()) {
+                        try (Transaction transaction = Transaction.openOuter()) {
+                            long inserted = this.fluidStorage.insert(FluidVariant.of(Fluids.WATER), FluidConstants.BOTTLE, transaction);
+
+                            if (inserted > 0) {
+                                inventory.set(0, new ItemStack(Items.GLASS_BOTTLE));
+                                transaction.commit();
+
+                            } else {
+
+                                transaction.abort();
+                            }
+                        }
                     }
+
                 }
             }
         }
@@ -132,13 +142,16 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
         if(inventory.get(1).isOf(Items.BUCKET)) {
             try(Transaction transaction = Transaction.openOuter()) {
                 FluidVariant variant = fluidStorage.variant;
-                this.fluidStorage.extract(fluidStorage.variant, 500, transaction);
-                if(variant.isOf(Fluids.WATER)) {
+                long extracted = this.fluidStorage.extract(fluidStorage.variant, 500, transaction);
+
+                if(extracted > 0 && variant.isOf(Fluids.WATER)) {
                     ItemStack waterBottle = new ItemStack(Items.POTION);
                     waterBottle.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
                     inventory.set(1, waterBottle);
+                    transaction.commit();
+                } else {
+                    transaction.abort();
                 }
-                transaction.commit();
             }
         }
     }
