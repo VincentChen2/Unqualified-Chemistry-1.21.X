@@ -181,7 +181,7 @@ public class FluidWidget implements Drawable, Widget {
         }
 
         public FluidWidget build() {
-            return new FluidWidget(this.fluidStorage, this.posSupplier, this.x, this.y, this.width, this.height);
+            return new FluidWidget(this.fluidStorage, this.posSupplier, this.width, this.height, this.x, this.y);
         }
     }
 }
