@@ -29,7 +29,7 @@ public class ScreenUtils {
 
                 float maxU = sprite.getMaxU();
                 float maxV = sprite.getMaxV();
-                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED,atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
+                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED, atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
             }
 
             if (yRemainder > 0) {
@@ -40,7 +40,7 @@ public class ScreenUtils {
 
                 float maxU = sprite.getMaxU();
                 float maxV = minV + (sprite.getMaxV() - minV) * ((float) yRemainder / spriteHeight);
-                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED,atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
+                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED, atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
             }
         }
 
@@ -53,7 +53,7 @@ public class ScreenUtils {
 
                 float maxU = minU + (sprite.getMaxU() - minU) * ((float) xRemainder / spriteWidth);
                 float maxV = sprite.getMaxV();
-                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED,atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
+                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED, atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
             }
 
             if (yRemainder > 0) {
@@ -64,7 +64,7 @@ public class ScreenUtils {
 
                 float maxU = minU + (sprite.getMaxU() - minU) * ((float) xRemainder / spriteWidth);
                 float maxV = minV + (sprite.getMaxV() - minV) * ((float) yRemainder / spriteHeight);
-                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED,atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
+                context.drawTexturedQuad(RenderPipelines.GUI_TEXTURED, atlasID, x1, x2, y1, y2, minU, maxU, minV, maxV, color);
             }
         }
     }

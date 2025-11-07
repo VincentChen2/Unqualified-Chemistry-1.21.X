@@ -83,7 +83,7 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         final float innerX1 = 9/16f;
         final float innerZ0 = 7/16f;
         final float innerZ1 = 9/16f;
-        final float innerY0 = 0.01f; // Bottom of fluid area, not 0 to avoid z-fighting
+        final float innerY0 = 0;
         final float innerY1 = innerY0 + state.fluidHeight;
 
         // Create custom renderer for the fluid

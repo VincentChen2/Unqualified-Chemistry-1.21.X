@@ -75,7 +75,7 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     public float getFluidHeight() {
-        return (((float) fluidStorage.getAmount() / fluidStorage.getCapacity()) * 0.625f) + 0.01f;
+        return (((float) fluidStorage.getAmount() / fluidStorage.getCapacity()) * 0.1875f);
     }
 
     @Override
