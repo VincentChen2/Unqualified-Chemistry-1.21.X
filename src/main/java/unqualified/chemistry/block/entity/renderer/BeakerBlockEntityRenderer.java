@@ -78,12 +78,13 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         final int light = getLightLevel(state.blockEntityWorld, state.lightPosition);
         final int color = state.fluidColor;
 
-        // Define beaker inner dimensions (adjust these based on your beaker model)
-        final float innerX0 = 7/16f;
-        final float innerX1 = 9/16f;
-        final float innerZ0 = 7/16f;
-        final float innerZ1 = 9/16f;
-        final float innerY0 = 0;
+        // Define beaker inner dimensions
+        final float offset = 0.001f;
+        final float innerX0 = 7/16f + offset;
+        final float innerX1 = 9/16f - offset;
+        final float innerZ0 = 7/16f + offset;
+        final float innerZ1 = 9/16f - offset;
+        final float innerY0 = 1 * offset;
         final float innerY1 = innerY0 + state.fluidHeight;
 
         // Create custom renderer for the fluid
