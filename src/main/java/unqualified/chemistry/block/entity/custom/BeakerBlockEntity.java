@@ -39,6 +39,9 @@ import unqualified.chemistry.block.entity.ModBlockEntities;
 import unqualified.chemistry.screen.custom.BeakerScreenHandler;
 import unqualified.chemistry.util.FluidUtils;
 
+import java.util.List;
+import java.util.Optional;
+
 public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, ImplementedInventory {
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
 
@@ -139,18 +142,28 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     private void transferFluidFromBeaker() {
-        if(inventory.get(1).isOf(Items.BUCKET)) {
-            try(Transaction transaction = Transaction.openOuter()) {
-                FluidVariant variant = fluidStorage.variant;
-                long extracted = this.fluidStorage.extract(fluidStorage.variant, 500, transaction);
+        if(inventory.get(1).isOf(Items.GLASS_BOTTLE)) {
+            if(fluidStorage.variant.isOf(Fluids.WATER) && fluidStorage.getAmount() >= FluidConstants.BOTTLE) {
+                try(Transaction transaction = Transaction.openOuter()) {
+                    long extracted = this.fluidStorage.extract(FluidVariant.of(Fluids.WATER), FluidConstants.BOTTLE, transaction);
 
-                if(extracted > 0 && variant.isOf(Fluids.WATER)) {
-                    ItemStack waterBottle = new ItemStack(Items.POTION);
-                    waterBottle.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
-                    inventory.set(1, waterBottle);
-                    transaction.commit();
-                } else {
-                    transaction.abort();
+                    if(extracted > 0) {
+                        ItemStack waterPotion = new ItemStack(Items.POTION);
+
+                        // Create a proper PotionContentsComponent with water
+                        PotionContentsComponent waterContents = new PotionContentsComponent(
+                                Optional.of(Potions.WATER),  // The potion type
+                                Optional.empty(),            // No custom color
+                                List.of(),                   // No custom effects
+                                Optional.empty()             // No custom name
+                        );
+
+                        waterPotion.set(DataComponentTypes.POTION_CONTENTS, waterContents);
+                        inventory.set(1, waterPotion);
+                        transaction.commit();
+                    } else {
+                        transaction.abort();
+                    }
                 }
             }
         }
