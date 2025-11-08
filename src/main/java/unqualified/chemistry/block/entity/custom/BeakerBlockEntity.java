@@ -29,6 +29,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 
@@ -142,28 +143,48 @@ public class BeakerBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     private void transferFluidFromBeaker() {
-        if(inventory.get(1).isOf(Items.GLASS_BOTTLE)) {
-            if(fluidStorage.variant.isOf(Fluids.WATER) && fluidStorage.getAmount() >= FluidConstants.BOTTLE) {
-                try(Transaction transaction = Transaction.openOuter()) {
-                    long extracted = this.fluidStorage.extract(FluidVariant.of(Fluids.WATER), FluidConstants.BOTTLE, transaction);
+        ItemStack bottleStack = inventory.get(1);
 
-                    if(extracted > 0) {
-                        ItemStack waterPotion = new ItemStack(Items.POTION);
+        if (bottleStack.isOf(Items.GLASS_BOTTLE) &&
+                fluidStorage.variant.isOf(Fluids.WATER) &&
+                fluidStorage.getAmount() >= FluidConstants.BOTTLE) {
 
-                        // Create a proper PotionContentsComponent with water
-                        PotionContentsComponent waterContents = new PotionContentsComponent(
-                                Optional.of(Potions.WATER),  // The potion type
-                                Optional.empty(),            // No custom color
-                                List.of(),                   // No custom effects
-                                Optional.empty()             // No custom name
-                        );
+            try (Transaction transaction = Transaction.openOuter()) {
+                long extracted = this.fluidStorage.extract(FluidVariant.of(Fluids.WATER), FluidConstants.BOTTLE, transaction);
 
-                        waterPotion.set(DataComponentTypes.POTION_CONTENTS, waterContents);
-                        inventory.set(1, waterPotion);
-                        transaction.commit();
-                    } else {
-                        transaction.abort();
+                if (extracted > 0) {
+                    // Create water potion
+                    ItemStack waterPotion = new ItemStack(Items.POTION);
+                    PotionContentsComponent waterContents = new PotionContentsComponent(
+                            Optional.of(Potions.WATER),
+                            Optional.empty(),
+                            List.of(),
+                            Optional.empty()
+                    );
+                    waterPotion.set(DataComponentTypes.POTION_CONTENTS, waterContents);
+
+                    // Set the water potion in the second slot
+                    inventory.set(1, waterPotion);
+
+                    // Handle the remaining bottles
+                    if (bottleStack.getCount() > 1) {
+                        ItemStack remainingBottles = bottleStack.copy();
+                        remainingBottles.setCount(bottleStack.getCount() - 1);
+
+                        // Try to put remaining bottles in the first slot if it's empty
+                        if (inventory.get(0).isEmpty()) {
+                            inventory.set(0, remainingBottles);
+                        } else {
+                            // Drop the remaining bottles on the ground
+                            if (world != null && !world.isClient()) {
+                                ItemScatterer.spawn(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, remainingBottles);
+                            }
+                        }
                     }
+
+                    transaction.commit();
+                } else {
+                    transaction.abort();
                 }
             }
         }
