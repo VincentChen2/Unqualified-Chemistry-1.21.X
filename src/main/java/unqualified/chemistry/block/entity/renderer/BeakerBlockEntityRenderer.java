@@ -68,14 +68,62 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
                 .normal(matricesEntry, 0, 1, 0);
     }
 
-    private static void drawQuad(VertexConsumer builder, MatrixStack.Entry matricesEntry, float x0, float y0, float z0, float x1, float y1, float z1, float u0, float v0, float u1, float v1, int packedLight, int color) {
-        //TODO: Fix Culling Issues
-        drawVertex(builder, matricesEntry, x0, y0, z0, u0, v0, packedLight, color);
-        drawVertex(builder, matricesEntry, x0, y1, z0, u0, v1, packedLight, color);
-        drawVertex(builder, matricesEntry, x1, y1, z1, u1, v1, packedLight, color);
-        drawVertex(builder, matricesEntry, x1, y0, z1, u1, v0, packedLight, color);
+    private static void drawYFace(VertexConsumer builder, MatrixStack.Entry matricesEntry,
+                                  float x0, float z0, float x1, float z1, float y,
+                                  float u0, float v0, float u1, float v1,
+                                  int packedLight, int color, boolean topFace) {
+        if (topFace) {
+            // Top face - counter-clockwise winding
+            drawVertex(builder, matricesEntry, x0, y, z0, u0, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x0, y, z1, u0, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y, z1, u1, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y, z0, u1, v1, packedLight, color);
+        } else {
+            // Bottom face - clockwise winding (faces down)
+            drawVertex(builder, matricesEntry, x0, y, z0, u0, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y, z0, u1, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y, z1, u1, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x0, y, z1, u0, v0, packedLight, color);
+        }
     }
 
+    private static void drawZFace(VertexConsumer builder, MatrixStack.Entry matricesEntry,
+                                  float x0, float y0, float x1, float y1, float z,
+                                  float u0, float v0, float u1, float v1,
+                                  int packedLight, int color, boolean positiveZ) {
+        if (positiveZ) {
+            // North face (positive Z)
+            drawVertex(builder, matricesEntry, x0, y0, z, u0, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y0, z, u1, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y1, z, u1, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x0, y1, z, u0, v0, packedLight, color);
+        } else {
+            // South face (negative Z)
+            drawVertex(builder, matricesEntry, x0, y0, z, u0, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x0, y1, z, u0, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y1, z, u1, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x1, y0, z, u1, v1, packedLight, color);
+        }
+    }
+
+    private static void drawXFace(VertexConsumer builder, MatrixStack.Entry matricesEntry,
+                                  float y0, float z0, float y1, float z1, float x,
+                                  float u0, float v0, float u1, float v1,
+                                  int packedLight, int color, boolean positiveX) {
+        if (positiveX) {
+            // East face (positive X)
+            drawVertex(builder, matricesEntry, x, y0, z0, u0, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x, y1, z0, u0, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x, y1, z1, u1, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x, y0, z1, u1, v1, packedLight, color);
+        } else {
+            // West face (negative X)
+            drawVertex(builder, matricesEntry, x, y0, z0, u0, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x, y0, z1, u1, v1, packedLight, color);
+            drawVertex(builder, matricesEntry, x, y1, z1, u1, v0, packedLight, color);
+            drawVertex(builder, matricesEntry, x, y1, z0, u0, v0, packedLight, color);
+        }
+    }
     @Override
     public void updateRenderState(BeakerBlockEntity blockEntity, BeakerBlockEntityRenderState state, float tickProgress, Vec3d cameraPos, @Nullable ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
         BlockEntityRenderer.super.updateRenderState(blockEntity, state, tickProgress, cameraPos, crumblingOverlay);
@@ -99,7 +147,6 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         FluidState fluidState = state.fluidStack.getFluid().getDefaultState();
         final int light = getLightLevel(state.blockEntityWorld, state.lightPosition);
         final int color = correctedColor(state.fluidStack, state.fluidColor);
-        System.out.println("Color: " + color);
 
         // Define beaker inner dimensions
         final float offset = 0.001f;
@@ -107,61 +154,47 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         final float innerX1 = 9/16f - offset;
         final float innerZ0 = 7/16f + offset;
         final float innerZ1 = 9/16f - offset;
-        final float innerY0 = 1 * offset;
-        final float innerY1 = innerY0 + state.fluidHeight - 1/32f;
+        final float innerY0 = offset;
+        final float innerY1 = innerY0 + state.fluidHeight - 1/64f;
 
-        // Create custom renderer for the fluid
         OrderedRenderCommandQueue.Custom customRenderer = (matricesEntry, vertexConsumer) -> {
-            // Top face
-            drawQuad(vertexConsumer, matricesEntry,
-                    innerX0, innerY1, innerZ0,
-                    innerX1, innerY1, innerZ1,
-                    sprite.getMinU(), sprite.getMinV(),
-                    sprite.getMaxU(), sprite.getMaxV(),
-                    light, color);
+            // Top face (facing up)
+            drawYFace(vertexConsumer, matricesEntry,
+                    innerX0, innerZ0, innerX1, innerZ1, innerY1,
+                    sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(),
+                    light, color, true);
 
-            // Bottom face
-            drawQuad(vertexConsumer, matricesEntry,
-                    innerX0, innerY0, innerZ0,
-                    innerX1, innerY0, innerZ1,
-                    sprite.getMinU(), sprite.getMinV(),
-                    sprite.getMaxU(), sprite.getMaxV(),
-                    light, color);
+            // Bottom face (facing down)
+            drawYFace(vertexConsumer, matricesEntry,
+                    innerX0, innerZ0, innerX1, innerZ1, innerY0,
+                    sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(),
+                    light, color, false);
 
             // North face (negative Z)
-            drawQuad(vertexConsumer, matricesEntry,
-                    innerX0, innerY0, innerZ0,
-                    innerX1, innerY1, innerZ0,
-                    sprite.getMinU(), sprite.getMinV(),
-                    sprite.getMaxU(), sprite.getMaxV(),
-                    light, color);
+            drawZFace(vertexConsumer, matricesEntry,
+                    innerX0, innerY0, innerX1, innerY1, innerZ0,
+                    sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(),
+                    light, color, false);
 
             // South face (positive Z)
-            drawQuad(vertexConsumer, matricesEntry,
-                    innerX0, innerY0, innerZ1,
-                    innerX1, innerY1, innerZ1,
-                    sprite.getMinU(), sprite.getMinV(),
-                    sprite.getMaxU(), sprite.getMaxV(),
-                    light, color);
+            drawZFace(vertexConsumer, matricesEntry,
+                    innerX0, innerY0, innerX1, innerY1, innerZ1,
+                    sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(),
+                    light, color, true);
 
             // West face (negative X)
-            drawQuad(vertexConsumer, matricesEntry,
-                    innerX0, innerY0, innerZ0,
-                    innerX0, innerY1, innerZ1,
-                    sprite.getMinU(), sprite.getMinV(),
-                    sprite.getMaxU(), sprite.getMaxV(),
-                    light, color);
+            drawXFace(vertexConsumer, matricesEntry,
+                    innerY0, innerZ0, innerY1, innerZ1, innerX0,
+                    sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(),
+                    light, color, false);
 
             // East face (positive X)
-            drawQuad(vertexConsumer, matricesEntry,
-                    innerX1, innerY0, innerZ0,
-                    innerX1, innerY1, innerZ1,
-                    sprite.getMinU(), sprite.getMinV(),
-                    sprite.getMaxU(), sprite.getMaxV(),
-                    light, color);
+            drawXFace(vertexConsumer, matricesEntry,
+                    innerY0, innerZ0, innerY1, innerZ1, innerX1,
+                    sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(),
+                    light, color, true);
         };
 
-        // Submit the custom renderer with the appropriate render layer
         queue.submitCustom(matrices, RenderLayers.getEntityBlockLayer(fluidState.getBlockState()), customRenderer);
     }
 }
