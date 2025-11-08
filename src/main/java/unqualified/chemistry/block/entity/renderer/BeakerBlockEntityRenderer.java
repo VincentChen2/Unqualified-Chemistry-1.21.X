@@ -1,6 +1,7 @@
 package unqualified.chemistry.block.entity.renderer;
 
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumer;
@@ -11,7 +12,9 @@ import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
@@ -19,7 +22,16 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import unqualified.chemistry.block.entity.custom.BeakerBlockEntity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBlockEntity, BeakerBlockEntityRenderState> {
+    private static final Map<Fluid, Integer> FLUID_COLOR_MAP = new HashMap<>();
+
+    static {
+        FLUID_COLOR_MAP.put(Fluids.WATER, 0x00FFFF);
+        FLUID_COLOR_MAP.put(Fluids.FLOWING_WATER, 0x00FFFF);
+    }
 
     public BeakerBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     }
@@ -27,6 +39,16 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
     @Override
     public BeakerBlockEntityRenderState createRenderState() {
         return new BeakerBlockEntityRenderState();
+    }
+
+    private int correctedColor(FluidVariant fluidVariant, int originalColor) {
+        Fluid fluid = fluidVariant.getFluid();
+
+        if (FLUID_COLOR_MAP.containsKey(fluid)) {
+            return FLUID_COLOR_MAP.get(fluid);
+        }
+
+        return originalColor;
     }
 
     private int getLightLevel(World world, BlockPos pos) {
@@ -76,7 +98,8 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
 
         FluidState fluidState = state.fluidStack.getFluid().getDefaultState();
         final int light = getLightLevel(state.blockEntityWorld, state.lightPosition);
-        final int color = state.fluidColor;
+        final int color = correctedColor(state.fluidStack, state.fluidColor);
+        System.out.println("Color: " + color);
 
         // Define beaker inner dimensions
         final float offset = 0.001f;
@@ -85,7 +108,7 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         final float innerZ0 = 7/16f + offset;
         final float innerZ1 = 9/16f - offset;
         final float innerY0 = 1 * offset;
-        final float innerY1 = innerY0 + state.fluidHeight;
+        final float innerY1 = innerY0 + state.fluidHeight - 1/32f;
 
         // Create custom renderer for the fluid
         OrderedRenderCommandQueue.Custom customRenderer = (matricesEntry, vertexConsumer) -> {
