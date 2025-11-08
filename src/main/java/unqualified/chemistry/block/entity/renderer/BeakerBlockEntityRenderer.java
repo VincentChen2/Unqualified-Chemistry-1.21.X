@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.command.ModelCommandRenderer;
@@ -24,6 +23,8 @@ import unqualified.chemistry.block.entity.custom.BeakerBlockEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static unqualified.chemistry.util.RenderUtils.*;
 
 public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBlockEntity, BeakerBlockEntityRenderState> {
     private static final Map<Fluid, Integer> FLUID_COLOR_MAP = new HashMap<>();
@@ -59,71 +60,6 @@ public class BeakerBlockEntityRenderer implements BlockEntityRenderer<BeakerBloc
         return LightmapTextureManager.pack(blockLight, skyLight);
     }
 
-    private static void drawVertex(VertexConsumer builder, MatrixStack.Entry matricesEntry, float x, float y, float z, float u, float v, int packedLight, int color) {
-        builder.vertex(matricesEntry, x, y, z)
-                .color(color)
-                .texture(u, v)
-                .overlay(0)
-                .light(packedLight)
-                .normal(matricesEntry, 0, 1, 0);
-    }
-
-    private static void drawYFace(VertexConsumer builder, MatrixStack.Entry matricesEntry,
-                                  float x0, float z0, float x1, float z1, float y,
-                                  float u0, float v0, float u1, float v1,
-                                  int packedLight, int color, boolean topFace) {
-        if (topFace) {
-            // Top face - counter-clockwise winding
-            drawVertex(builder, matricesEntry, x0, y, z0, u0, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x0, y, z1, u0, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y, z1, u1, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y, z0, u1, v1, packedLight, color);
-        } else {
-            // Bottom face - clockwise winding (faces down)
-            drawVertex(builder, matricesEntry, x0, y, z0, u0, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y, z0, u1, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y, z1, u1, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x0, y, z1, u0, v0, packedLight, color);
-        }
-    }
-
-    private static void drawZFace(VertexConsumer builder, MatrixStack.Entry matricesEntry,
-                                  float x0, float y0, float x1, float y1, float z,
-                                  float u0, float v0, float u1, float v1,
-                                  int packedLight, int color, boolean positiveZ) {
-        if (positiveZ) {
-            // North face (positive Z)
-            drawVertex(builder, matricesEntry, x0, y0, z, u0, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y0, z, u1, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y1, z, u1, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x0, y1, z, u0, v0, packedLight, color);
-        } else {
-            // South face (negative Z)
-            drawVertex(builder, matricesEntry, x0, y0, z, u0, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x0, y1, z, u0, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y1, z, u1, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x1, y0, z, u1, v1, packedLight, color);
-        }
-    }
-
-    private static void drawXFace(VertexConsumer builder, MatrixStack.Entry matricesEntry,
-                                  float y0, float z0, float y1, float z1, float x,
-                                  float u0, float v0, float u1, float v1,
-                                  int packedLight, int color, boolean positiveX) {
-        if (positiveX) {
-            // East face (positive X)
-            drawVertex(builder, matricesEntry, x, y0, z0, u0, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x, y1, z0, u0, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x, y1, z1, u1, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x, y0, z1, u1, v1, packedLight, color);
-        } else {
-            // West face (negative X)
-            drawVertex(builder, matricesEntry, x, y0, z0, u0, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x, y0, z1, u1, v1, packedLight, color);
-            drawVertex(builder, matricesEntry, x, y1, z1, u1, v0, packedLight, color);
-            drawVertex(builder, matricesEntry, x, y1, z0, u0, v0, packedLight, color);
-        }
-    }
     @Override
     public void updateRenderState(BeakerBlockEntity blockEntity, BeakerBlockEntityRenderState state, float tickProgress, Vec3d cameraPos, @Nullable ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
         BlockEntityRenderer.super.updateRenderState(blockEntity, state, tickProgress, cameraPos, crumblingOverlay);
