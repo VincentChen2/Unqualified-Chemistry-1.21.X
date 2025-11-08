@@ -16,6 +16,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.World;
 import unqualified.chemistry.util.ScreenUtils;
 
@@ -80,6 +81,13 @@ public class FluidWidget implements Drawable, Widget {
         if (fluidRenderHandler == null) return;
         Sprite sprite = fluidRenderHandler.getFluidSprites(world, pos, fluidState)[0];
         int tintColor = fluidRenderHandler.getFluidColor(world, pos, fluidState);
+
+        //TODO: Make opacity variable based on fluid type
+        //Extract RGB components and set alpha to 192 (three-quarters opacity)
+        int red = ColorHelper.getRed(tintColor);
+        int green = ColorHelper.getGreen(tintColor);
+        int blue = ColorHelper.getBlue(tintColor);
+        tintColor = ColorHelper.getArgb(192, red, green, blue);
 
         if (fluidAmount <= 0) return;
         if (world == null) return;

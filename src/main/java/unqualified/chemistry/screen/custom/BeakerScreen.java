@@ -38,7 +38,7 @@ public class BeakerScreen extends HandledScreen<BeakerScreenHandler> {
         super.init();
 
         addDrawable(FluidWidget.builder(this.handler.getBlockEntity().fluidStorage)
-                .bounds(this.x + 80, this.y + 8, 15, 63 )
+                .bounds(this.x + 80, this.y + 13, 16, 60 )
                 .posSupplier(() -> this.handler.getBlockEntity().getPos())
                 .build()
         );
